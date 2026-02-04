@@ -10,7 +10,7 @@ export default async function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative h-[500px] md:h-[600px]">
+      <section className="relative h-125 md:h-150">
         <div className="absolute -inset-16 bg-[url('/images/placeholder.jpg')] bg-center bg-cover brightness-75"></div>
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 md:px-0">
           <span className="inline-block bg-blue-950/80 px-4 py-1 rounded-full text-sm md:text-base font-semibold mb-4">
@@ -73,7 +73,7 @@ export default async function HomePage() {
               { name: "GAALI", url: "https://gaali.mn", icon: "🚛", desc: "Гаалийн мэдээ, зөвшөөрөл, лавлагаа" },
               { name: "1212", url: "https://1212.mn", icon: "📞", desc: "Төрийн үйлчилгээний нэгдсэн лавлах" },
             ].map((item) => (
-              <a key={item.name} href={item.url} target="_blank" className="group rounded-2xl border p-6 bg-white text-gray-800 transition-all duration-300 hover:border-transparent hover:bg-gradient-to-br hover:from-blue-200 hover:to-blue-100">
+              <a key={item.name} href={item.url} target="_blank" className="group rounded-2xl border p-6 bg-white text-gray-800 transition-all duration-300 hover:border-transparent hover:bg-linear-to-br hover:from-blue-200 hover:to-blue-100">
                 <div className="text-3xl mb-4 transition-colors group-hover:text-white">{item.icon}</div>
                 <h3 className="font-semibold text-lg mb-1 transition-colors">{item.name}</h3>
                 <p className="text-sm text-gray-600 transition-colors">{item.desc}</p>
@@ -86,9 +86,9 @@ export default async function HomePage() {
 {/* NEWS SECTION */}
 <section className="section py-16 md:py-24 bg-muted">
   <div className="container mx-auto px-4">
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-4 md:gap-0">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Цаг үеийн мэдээ</h2>
-      <a href="/news" className="text-blue-950 font-medium hover:underline text-sm sm:text-base">Бүх мэдээ →</a>
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-4 md:gap-0 section-header">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">Цаг үеийн мэдээ</h2>
+      <Link href="/news" className="text-blue-950 font-medium hover:underline text-sm sm:text-base">Бүх мэдээ →</Link>
     </div>
 
     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
@@ -141,7 +141,7 @@ export default async function HomePage() {
 
 
       {/* MAYOR SECTION */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-blue-900 to-blue-700 relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-linear-to-br from-blue-900 to-blue-700 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,...')] opacity-20"></div>
         </div>
@@ -151,7 +151,7 @@ export default async function HomePage() {
             <div className="relative w-full max-w-md mx-auto">
               <div className="absolute -inset-4 bg-blue-400/20 rounded-2xl blur-2xl"></div>
               <div className="relative bg-white rounded-2xl p-2 shadow-2xl">
-                <div className="aspect-[3/4] rounded-xl overflow-hidden">
+                <div className="aspect-3/4 rounded-xl overflow-hidden">
                   <Image src="/images/news_2.jpg" alt="Governor" width={800} height={800} className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -182,9 +182,8 @@ export default async function HomePage() {
               </div>
 
               <div className="flex flex-wrap gap-4 mt-4">
-                <a href="#" className="button px-5 py-2">Төсөл, хөтөлбөрүүд</a>
-                <a href="#" className="button outline px-5 py-2">Холбоо барих</a>
-                <a href="#" className="button outline px-5 py-2">Цагийн хуваарь</a>
+                <a href="#" className="button  px-5 py-2">Холбоо барих</a>
+                <a href="#" className="button  px-5 py-2">Цагийн хуваарь</a>
               </div>
             </div>
           </div>
