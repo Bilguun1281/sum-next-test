@@ -1,3 +1,4 @@
+import Link from "next/link"
 import TenderCard from "@/components/TenderCard"
 import { tenderData } from "@/features/tender/api"
 
@@ -17,8 +18,17 @@ export default async function TenderPage({ searchParams }: Props) {
       : tenderData.filter((t) => t.status === statusFilter)
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Тендерийн урилга</h1>
+    <main className="container mx-auto px-4 py-8 space-y-6">
+
+      {/* ================= BREADCRUMB ================= */}
+      <nav className="flex items-center gap-2 text-sm text-gray-500 mt-10">
+        <Link href="/" className="hover:underline">Нүүр</Link>
+        <span>/</span>
+        <span className="text-gray-900 font-medium">Тендерийн урилга</span>
+      </nav>
+
+      {/* ================= TITLE ================= */}
+      <h1 className="text-3xl font-bold mb-6 text-gray-900">Тендерийн урилга</h1>
 
       {/* ================= FILTER BAR ================= */}
       <div className="flex gap-2 mb-6">
@@ -51,11 +61,14 @@ export default async function TenderPage({ searchParams }: Props) {
             status={tender.status}
             deadline={tender.deadline}
             budget={tender.budget}
+            slug={tender.slug} // ✅ pass the real slug
           />
         ))}
 
         {filteredTenders.length === 0 && (
-          <p className="text-center text-gray-500 py-16">Энэ төрлийн тендер байхгүй байна.</p>
+          <p className="text-center text-gray-500 py-16">
+            Энэ төрлийн тендер байхгүй байна.
+          </p>
         )}
       </ul>
     </main>

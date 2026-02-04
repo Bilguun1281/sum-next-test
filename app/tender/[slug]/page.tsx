@@ -6,8 +6,9 @@ import TenderCard from "@/components/TenderCard"
 type Props = { params: { slug: string } }
 
 export default async function TenderDetailPage({ params }: Props) {
-  // Find tender by slug
-  const tender = tenderData.find((t) => t.slug === params.slug)
+const { slug } = await params;
+const tender = tenderData.find((t) => t.slug === slug)
+
 
   if (!tender) {
     return (
@@ -23,7 +24,7 @@ export default async function TenderDetailPage({ params }: Props) {
   return (
     <main className="container mx-auto px-4 py-8 space-y-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
+      <nav className="flex items-center gap-2 text-sm text-gray-500 mt-10">
         <Link href="/" className="hover:underline">Нүүр</Link>
         <span>/</span>
         <Link href="/tender" className="hover:underline">Тендерийн урилга</Link>
@@ -72,12 +73,11 @@ export default async function TenderDetailPage({ params }: Props) {
             .filter((t) => t.slug !== tender.slug)
             .map((t) => (
               <TenderCard
-                key={t.slug}
-                title={t.title}
-                status={t.status}
-                deadline={t.deadline}
-                budget={t.budget}
-              />
+                    key={t.slug}
+                    title={t.title}
+                    status={t.status}
+                    deadline={t.deadline}
+                    budget={t.budget} slug={""}              />
             ))}
         </ul>
       </div>
