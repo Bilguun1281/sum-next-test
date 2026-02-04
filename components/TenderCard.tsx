@@ -5,7 +5,7 @@ type TenderCardProps = {
   status: "active" | "closed"
   deadline: string
   budget: string
-  slug: string // <-- add slug here
+  slug: string
 }
 
 export default function TenderCard({
@@ -16,11 +16,12 @@ export default function TenderCard({
   slug,
 }: TenderCardProps) {
   return (
-    <li className="flex items-center justify-between w-full border-b border-gray-200 py-4 last:border-b-0">
-      {/* Left: Status */}
-      <div className="flex flex-col items-start w-40 sm:w-48">
+    <li className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full border-b border-gray-200 last:border-b-0 p-4 bg-white sm:bg-transparent sm:p-0">
+      
+      {/* Left: Status + Deadline */}
+      <div className="flex items-center justify-between sm:flex-col sm:items-start sm:w-48 gap-1">
         <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+          className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
             status === "active"
               ? "bg-green-100 text-green-800"
               : "bg-gray-200 text-gray-600"
@@ -28,20 +29,22 @@ export default function TenderCard({
         >
           {status === "active" ? "НЭЭЛТТЭЙ" : "ХААГДСАН"}
         </span>
-        <span className="text-gray-500 text-sm mt-1">{deadline}</span>
+        <span className="text-gray-500 text-sm">{deadline}</span>
       </div>
 
-      {/* Middle: Title & Budget */}
-      <div className="flex-1 px-4">
-        <h3 className="text-gray-800 font-medium">{title}</h3>
+      {/* Middle: Title + Budget */}
+      <div className="flex-1 sm:px-4 mt-2 sm:mt-0">
+        <h3 className="text-gray-800 font-medium leading-snug line-clamp-2">
+          {title}
+        </h3>
         <p className="text-gray-500 text-sm mt-1">Төсөв: {budget}</p>
       </div>
 
       {/* Right: Action */}
-      <div>
+      <div className="mt-2 sm:mt-0 sm:text-right">
         <Link
-          href={`/tender/${slug}`} // <-- link to detailed page
-          className="button outline px-4 py-1 text-sm"
+          href={`/tender/${slug}`}
+          className="inline-block w-full sm:w-auto rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium hover:bg-gray-100 transition"
         >
           Дэлгэрэнгүй
         </Link>
