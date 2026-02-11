@@ -48,14 +48,7 @@ export default function OrganizationCard({ org }: Props) {
               <Mail className="w-4 h-4 text-gray-400" /> {org.email}
             </div>
           )}
-          {org.website && (
-            <div className="flex items-center gap-1">
-              <Globe className="w-4 h-4 text-gray-400" />
-              <a href={org.website} target="_blank" className="text-blue-600 hover:underline">
-                Вебсайт
-              </a>
-            </div>
-          )}
+
         </div>
 
         {/* Working hours */}

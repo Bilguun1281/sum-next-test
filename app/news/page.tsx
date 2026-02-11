@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ChevronRight, LayoutGrid, LayoutList } from "lucide-react"
 import NewsCard from "@/components/NewsCard"
-import { newsData } from "@/features/news/api"
+import { getAllNews } from "@/features/news/api"
 
 type Props = {
   searchParams?: Promise<{
@@ -15,15 +15,16 @@ export default async function NewsPage({ searchParams }: Props) {
   const selectedCategory = params?.category
   const layout = params?.layout ?? "vertical"
 
-  // Unique categories
-  const categories = Array.from(
-    new Set(newsData.map((n) => n.category))
-  )
+  /* ================= FETCH NEWS ================= */
+  const { data: newsData } = await getAllNews({
+    category: selectedCategory,
+    limit: 50, // enough for listing + categories
+  })
 
-  // Filter news
-  const filteredNews = selectedCategory
-    ? newsData.filter((n) => n.category === selectedCategory)
-    : newsData
+  /* ================= CATEGORIES ================= */
+  const categories = Array.from(
+    new Set(newsData.map((n) => n.category).filter(Boolean))
+  )
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-8">
@@ -83,12 +84,12 @@ export default async function NewsPage({ searchParams }: Props) {
           })}
         </div>
 
-        {/* Layout switch with icons */}
+        {/* Layout switch */}
         <div className="flex items-center gap-2">
           <Link
             href={`/news${selectedCategory ? `?category=${encodeURIComponent(selectedCategory)}` : ""}`}
             className={`
-              rounded-lg p-2 border transition flex items-center justify-center
+              rounded-lg p-2 border transition
               ${layout === "vertical" ? "bg-blue-600 text-white" : "hover:bg-gray-100 text-gray-700"}
             `}
           >
@@ -98,7 +99,7 @@ export default async function NewsPage({ searchParams }: Props) {
           <Link
             href={`/news?layout=horizontal${selectedCategory ? `&category=${encodeURIComponent(selectedCategory)}` : ""}`}
             className={`
-              rounded-lg p-2 border transition flex items-center justify-center
+              rounded-lg p-2 border transition
               ${layout === "horizontal" ? "bg-blue-600 text-white" : "hover:bg-gray-100 text-gray-700"}
             `}
           >
@@ -115,17 +116,17 @@ export default async function NewsPage({ searchParams }: Props) {
             : "grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         }
       >
-        {filteredNews.map((news) => (
+        {newsData.map((news) => (
           <NewsCard
             key={news.slug}
             news={news}
-            layout={layout === "horizontal" ? "horizontal" : "vertical"}
+            layout={layout}
           />
         ))}
       </div>
 
       {/* ================= EMPTY STATE ================= */}
-      {filteredNews.length === 0 && (
+      {newsData.length === 0 && (
         <p className="text-center text-gray-500 py-16">
           Энэ ангилалд мэдээ байхгүй байна.
         </p>

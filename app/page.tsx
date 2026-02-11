@@ -1,36 +1,78 @@
 import NewsCard from "@/components/NewsCard";
 import TenderCard from "@/components/TenderCard";
-import { newsData } from "@/features/news/api";
-import { tenderData } from "@/features/tender/api";
+import { getEgovServices, getHomeData, getQuickLinks, getRelatedOrganizations } from "@/features/home/api";
+import { getLatestNews } from "@/features/news/api";
+import { getLatestTenders } from "@/features/tender/api";
+import { getAssetUrl } from "@/lib/utils";
 import { ArrowRight, Mail, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+
+
+
 export default async function HomePage() {
+
+  const newsData = await getLatestNews(4);
+  const tenders = await getLatestTenders(4)
+
+
+const [homeDataRes, quickLinksRes, egovRes, relatedOrgsRes] = await Promise.allSettled([
+  getHomeData(),
+  getQuickLinks(),
+  getEgovServices(),
+  getRelatedOrganizations() 
+]);
+
+
+    // ================= SAFE DATA =================
+const homeData =
+  homeDataRes.status === "fulfilled" ? homeDataRes.value : null
+
+const egovServices =
+  egovRes.status === "fulfilled" 
+        ? (egovRes.value ?? []).filter((p) => p.logo?.filename_disk)
+      : [];
+const quickLinks =
+  quickLinksRes.status === "fulfilled" ? quickLinksRes.value : [];
+
+  const relatedOrganizations =
+  relatedOrgsRes.status === "fulfilled" ? relatedOrgsRes.value : [];
+
   return (
     <>
-      {/* HERO */}
-      <section className="relative h-125 md:h-150">
-        <div className="absolute -inset-16 bg-[url('/images/placeholder.jpg')] bg-center bg-cover brightness-75"></div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 md:px-0">
-          <span className="inline-block bg-blue-950/80 px-4 py-1 rounded-full text-sm md:text-base font-semibold mb-4">
-            МОНГОЛ УЛС
-          </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight max-w-3xl">
-            Соён сумын нутгийн өөрөө удирдах байгууллага
-          </h1>
-          <p className="mt-4 text-base sm:text-lg md:text-xl lg:text-2xl max-w-2xl">
-            Нутгийн хөгжил, иргэдийн оролцоог эрхэмлэн, төрийн үйлчилгээг түргэн шуурхай хүргэнэ.
-          </p>
+{/* HERO */}
+{homeData && (
+  <section className="relative h-125 md:h-150">
+    {/* Background image from Directus */}
+    {homeData.hero_cover ? (
+      <div
+        className="absolute inset-x-0 -top-16 h-180  bg-center bg-cover brightness-75"
+        style={{
+          backgroundImage: `url(${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${homeData.hero_cover.filename_disk})`,
+        }}
+      ></div>
+    ) : (
+      <div className="absolute -inset-16 bg-[url('/images/placeholder.avif')] bg-center bg-cover brightness-75"></div>
+    )}
 
-          <div className="mt-6 flex flex-wrap gap-4 justify-center">
-            <a className="button px-6 py-2" href="#">Дэлгэрэнгүй</a>
-            <a className="button outline px-6 py-2" href="#">Сумын танилцуулга</a>
-          </div>
-        </div>
-      </section>
+    <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4 md:px-0">
+      {homeData.hero_title && (
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight max-w-3xl">
+          {homeData.hero_title}
+        </h1>
+      )}
+      {homeData.hero_subtitle && (
+        <p className="mt-4 text-base sm:text-lg md:text-xl lg:text-2xl max-w-2xl">
+          {homeData.hero_subtitle}
+        </p>
+      )}
+    </div>
+  </section>
+)}
 
-      {/* QUICK LINKS */}
+
+     {/* ================= QUICK LINKS ================= */}
       <section className="section py-16 md:py-24 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="mb-8 md:mb-12 section-header py-10">
@@ -38,22 +80,26 @@ export default async function HomePage() {
               Хэрэгцээт холбоос
             </h2>
           </div>
+
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[
-              { title: "Сумын тухай", href: "/sumiin-tuhai" },
-              { title: "Мэдээ мэдээлэл", href: "/medee" },
-              { title: "Ил тод байдал", href: "/il-tod-baidal" },
-              { title: "Төсөл хөтөлбөр", href: "/tusul-hutulbur" },
-              { title: "Тендер", href: "/tender" },
-              { title: "Хууль, журам", href: "/huuli-juuram" },
-              { title: "Өргөдөл, гомдол", href: "/urgudul-gomdol" },
-              { title: "Холбоо барих", href: "/holboo-barih" },
-            ].map((item) => (
-              <a key={item.title} href={item.href} className="group flex items-center justify-between rounded-xl border bg-white px-5 py-4 shadow-sm hover:shadow-md transition-all">
-                <span className="font-medium text-gray-800 group-hover:text-blue-900">{item.title}</span>
-                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-900 transition" />
-              </a>
-            ))}
+            {quickLinks.length > 0 ? (
+              quickLinks.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.link}
+                  className="group flex items-center justify-between rounded-xl border bg-white px-5 py-4 shadow-sm hover:shadow-md transition-all"
+                >
+                  <span className="font-medium text-gray-800 group-hover:text-blue-900">
+                    {item.title}
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-900 transition" />
+                </a>
+              ))
+            ) : (
+              <p className="text-gray-500 col-span-full text-center">
+                Хэрэгцээт холбоос байхгүй байна
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -66,71 +112,100 @@ export default async function HomePage() {
               Төрийн цахим үйлчилгээнүүд
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { name: "eBarimt", url: "https://www.ebarimt.mn", icon: "🧾", desc: "НӨАТ-ын баримт бүртгэл, сугалаа" },
-              { name: "ITAX", url: "https://itax.mta.mn", icon: "📊", desc: "Татварын тайлан, төлөлт, лавлагаа" },
-              { name: "GAALI", url: "https://gaali.mn", icon: "🚛", desc: "Гаалийн мэдээ, зөвшөөрөл, лавлагаа" },
-              { name: "1212", url: "https://1212.mn", icon: "📞", desc: "Төрийн үйлчилгээний нэгдсэн лавлах" },
-            ].map((item) => (
-              <a key={item.name} href={item.url} target="_blank" className="group rounded-2xl border p-6 bg-white text-gray-800 transition-all duration-300 hover:border-transparent hover:bg-linear-to-br hover:from-blue-200 hover:to-blue-100">
-                <div className="text-3xl mb-4 transition-colors group-hover:text-white">{item.icon}</div>
-                <h3 className="font-semibold text-lg mb-1 transition-colors">{item.name}</h3>
-                <p className="text-sm text-gray-600 transition-colors">{item.desc}</p>
-              </a>
-            ))}
-          </div>
+
+<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  {egovServices.map((service) => {
+    const logoNode = service.logo ? (
+      <Image
+        src={getAssetUrl(service.logo.id)}
+        alt={service.name}
+        width={80}
+        height={80}
+        className="object-contain"
+        unoptimized
+      />
+    ) : null
+
+    return (
+      <a
+        key={service.id}
+        href={service.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group rounded-2xl border p-6 bg-white text-gray-800 transition-all duration-300 hover:border-transparent hover:bg-linear-to-br hover:from-blue-200 hover:to-blue-100"
+      >
+        <div className="mb-4">{logoNode}</div>
+        <h3 className="font-semibold text-lg mb-1">{service.name}</h3>
+        <p className="text-sm text-gray-600">{service.description}</p>
+      </a>
+      
+    )
+    
+  })}
+</div>
+
         </div>
       </section>
 
-{/* NEWS SECTION */}
+{/* ================= NEWS SECTION ================= */}
 <section className="section py-16 md:py-24 bg-muted">
   <div className="container mx-auto px-4">
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-4 md:gap-0 section-header">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">Цаг үеийн мэдээ</h2>
-      <Link href="/news" className="text-blue-950 font-medium hover:underline text-sm sm:text-base">Бүх мэдээ →</Link>
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        Цаг үеийн мэдээ
+      </h2>
+      <Link
+        href="/news"
+        className="text-blue-950 font-medium hover:underline text-sm sm:text-base"
+      >
+        Бүх мэдээ →
+      </Link>
     </div>
 
     <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-      {/* Left Column: Featured First News */}
+      {/* ================= FEATURED NEWS ================= */}
       {newsData[0] && (
-        <a
+        <Link
           href={`/news/${newsData[0].slug}`}
-          className="relative group block rounded-2xl overflow-hidden shadow-lg h-full"
-          style={{ minHeight: '400px' }} // ensures same minimum height
+          className="relative group block rounded-2xl overflow-hidden shadow-lg h-full min-h-100"
         >
           <div className="absolute inset-0">
-            <Image
-              src={newsData[0].image}
-              alt={newsData[0].title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/40 transition-opacity group-hover:bg-black/30"></div>
+            {newsData[0].image && (
+              <Image
+                src={getAssetUrl(newsData[0].image.id)}
+                alt={newsData[0].title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                unoptimized
+              />
+            )}
+            <div className="absolute inset-0 bg-black/40 transition-opacity group-hover:bg-black/30" />
           </div>
 
           <div className="absolute bottom-0 left-0 p-6 md:p-10 text-white z-10">
             <span className="inline-block bg-blue-600/80 px-3 py-1 rounded-full text-xs md:text-sm font-medium mb-2">
               {newsData[0].category}
             </span>
+
             <h2 className="text-xl md:text-3xl font-bold mb-2 line-clamp-2">
               {newsData[0].title}
             </h2>
+
             <p className="text-sm md:text-base line-clamp-3">
               {newsData[0].description}
             </p>
           </div>
-        </a>
+        </Link>
       )}
 
-      {/* Right Column: Other News */}
+      {/* ================= OTHER NEWS ================= */}
       <div className="flex flex-col gap-4 h-full">
         {newsData.slice(1, 4).map((news) => (
           <NewsCard
             key={news.slug}
             news={news}
             layout="horizontal"
-            className="flex-1" // forces each card to take equal height
+            className="flex items-center gap-4"
           />
         ))}
       </div>
@@ -190,54 +265,86 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* TENDERS */}
-
+{/* TENDERS */}
 <section className="section py-16 md:py-24">
   <div className="container mx-auto px-4">
     <div className="section-header pb-10 flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-4 md:gap-0">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Тендерийн урилга</h2>
-      <Link href="/tender" className="text-blue-950 font-medium hover:underline text-sm sm:text-base">Бүх тендер →</Link>
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+        Тендерийн урилга
+      </h2>
+      <Link
+        href="/tender"
+        className="text-blue-950 font-medium hover:underline text-sm sm:text-base"
+      >
+        Бүх тендер →
+      </Link>
     </div>
 
     <div className="grid md:grid-cols-1 gap-6">
-      {tenderData.map((tender) => (
-        <TenderCard
-          key={tender.slug}
-          slug={tender.slug}
-          title={tender.title}
-          status={tender.status}
-          deadline={tender.deadline}
-          budget={tender.budget}
-        />
-      ))}
+      {tenders.length ? (
+        tenders.map((tender) => (
+          <TenderCard
+            key={tender.slug}
+            slug={tender.slug}
+            title={tender.title}
+            status={tender.status}
+            deadline={tender.deadline}
+            budget={tender.budget}
+          />
+        ))
+      ) : (
+        <p className="text-gray-500 text-center">
+          Одоогоор тендер байхгүй байна
+        </p>
+      )}
     </div>
   </div>
 </section>
 
-      {/* RELATED ORGANIZATIONS */}
-      <section className="section py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 pb-10 md:mb-12 section-header">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Холбоотой байгууллагууд</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {[
-              { name: "Засгийн газар", href: "https://zasag.mn", logo: "/images/logo.svg" },
-              { name: "Аймгийн ЗДТГ", href: "#", logo: "/images/logo.svg" },
-              { name: "Татварын алба", href: "https://mta.mn", logo: "/images/logo.svg" },
-              { name: "Нийгмийн даатгал", href: "https://ndaatgal.mn", logo: "/images/logo.svg" },
-              { name: "Цагдаагийн газар", href: "#", logo: "/images/logo.svg" },
-            ].map((item) => (
-              <a key={item.name} href={item.href} target="_blank" className="group flex flex-col items-center justify-center hover:shadow-md transition">
-                <div className="relative w-20 h-20 mb-3">
-                  <Image src={item.logo} alt={item.name} fill className="object-contain" />
-                </div>
-                <span className="text-sm text-center text-gray-700 group-hover:text-blue-900 font-medium">{item.name}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+
+{/* RELATED ORGANIZATIONS */}
+<section className="section py-16 md:py-24 bg-white">
+  <div className="container mx-auto px-4">
+    <div className="mb-8 pb-10 md:mb-12 section-header">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+        Холбоотой байгууллагууд
+      </h2>
+    </div>
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      {relatedOrganizations.length ? (
+        relatedOrganizations.map((item) => (
+          <a
+            key={item.name}
+            href={item.href}
+            target="_blank"
+            className="group flex flex-col items-center justify-center hover:shadow-md transition"
+          >
+            {item.logo && (
+              <div className="relative w-20 h-20 mb-3">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${item.logo.filename_disk}`}
+                  alt={item.name}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+            <span className="text-sm text-center text-gray-700 group-hover:text-blue-900 font-medium">
+              {item.name}
+            </span>
+          </a>
+        ))
+      ) : (
+        <p className="text-gray-500 col-span-full text-center">
+          Холбоотой байгууллага байхгүй байна
+        </p>
+      )}
+    </div>
+  </div>
+</section>
+
+
     </>
   );
 }
