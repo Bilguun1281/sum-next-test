@@ -2,6 +2,7 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { Mail, Phone, Clock, Globe, MapPin } from "lucide-react"
 import { organizationsData } from "@/features/baiguullaga/api"
+import Link from "next/link"
 
 type Props = {
   params: { slug: string }
@@ -17,25 +18,63 @@ export default async function OrganizationDetailPage({ params }: Props) {
 
   return (
     <div className="bg-gray-50">
-      {/* HERO */}
-      <section className="relative h-[360px]">
-        <Image
-          src={org.logo}
-          alt={org.name}
-          fill
-          priority
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 h-full flex items-end">
-          <div className="container mx-auto px-4 pb-8 text-white">
-            <span className="inline-block bg-blue-600 px-3 py-1 rounded-full text-xs mb-3">
+{/* HERO */}
+<section className="relative -top-16 h-100">
+  <Image
+    src={org.logo}
+    alt={org.name}
+    fill
+    priority
+    className="object-cover"
+  />
+  <div className="absolute inset-0 bg-black/50" />
+
+  <div className="relative z-10 h-full flex items-end pb-10 ">
+    <div className="container mx-auto px-4 pb-8 text-white space-y-3">
+
+
+
+      {/* Category */}
+      <span className="inline-block bg-blue-600 px-3 py-1 rounded-full text-xs">
+        {org.categoryName}
+      </span>
+
+      <h1 className="text-3xl md:text-4xl font-bold">
+        {org.name}
+      </h1>
+            {/* Breadcrumb */}
+      <nav className="text-sm text-white/80">
+        <ol className="flex items-center gap-2 flex-wrap">
+          <li>
+            <Link href="/" className="hover:underline">
+              Нүүр
+            </Link>
+          </li>
+          <li>/</li>
+          <li>
+            <Link href="/baiguullaga" className="hover:underline">
+              Байгууллагууд
+            </Link>
+          </li>
+          <li>/</li>
+          <li>
+            <Link
+              href={`/baiguullaga?category=${org.category}`}
+              className="hover:underline"
+            >
               {org.categoryName}
-            </span>
-            <h1 className="text-3xl md:text-4xl font-bold">{org.name}</h1>
-          </div>
-        </div>
-      </section>
+            </Link>
+          </li>
+          <li>/</li>
+          <li className="text-white font-medium truncate max-w-[200px]">
+            {org.name}
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
 
       {/* CONTENT */}
       <section className="container mx-auto px-4 py-10 grid lg:grid-cols-3 gap-8">

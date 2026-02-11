@@ -1,94 +1,149 @@
-import { MapPin, Users, Activity, Building, CreditCard, Briefcase } from "lucide-react";
+"use client"
 
-export default function Footer() {
-  const stats = [
-    { label: "Газар нутаг", value: "1,250 км²", icon: <MapPin className="w-10 h-10 text-blue-600 mx-auto" /> },
-    { label: "Хүн ам", value: "15,340", icon: <Users className="w-10 h-10 text-blue-600 mx-auto" /> },
-    { label: "Мал сүрэг", value: "58,000", icon: <Activity className="w-10 h-10 text-blue-600 mx-auto" /> },
-    { label: "ААН-ийн тоо", value: "320", icon: <Building className="w-10 h-10 text-blue-600 mx-auto" /> },
-    { label: "Төвлөрүүлсэн татвар", value: "120 сая ₮", icon: <CreditCard className="w-10 h-10 text-blue-600 mx-auto" /> },
-    { label: "Хөдөлмөр эрхлэлт", value: "8,500 хүн", icon: <Briefcase className="w-10 h-10 text-blue-600 mx-auto" /> },
-  ];
+import { GlobalSettings, Statistic } from "@/types"
+import {
+  MapPin,
+  Users,
+  Activity,
+  Building2,
+  CreditCard,
+  Briefcase,
+  ExternalLink,
+  LucideIcon,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+} from "lucide-react"
+import Link from "next/link"
+
+/* ------------------ STAT ICON MAP ------------------ */
+const statIconMap: Record<string, LucideIcon> = {
+  map: MapPin,
+  users: Users,
+  activity: Activity,
+  building: Building2,
+  credit: CreditCard,
+  briefcase: Briefcase,
+}
+
+/* ------------------ SOCIAL ICON MAP ------------------ */
+const socialIconMap: Record<string, LucideIcon> = {
+  facebook: Facebook,
+  twitter: Twitter,
+  instagram: Instagram,
+  linkedin: Linkedin,
+}
+
+type FooterProps = {
+  globals?: GlobalSettings
+}
+
+export default function Footer({ globals }: FooterProps) {
+  const stats: Statistic[] = globals?.Statistics || []
+  const socialLinks = globals?.social_links || []
 
   return (
-    <footer className="bg-[#111828] text-white pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-[#0B1220] text-gray-200">
+      <div className="container mx-auto px-4">
 
-        {/* Top Statistics with Icons */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 mb-8 text-center">
-          {stats.map((stat) => (
-            <div key={stat.label}>
-              <div>{stat.icon}</div>
-              <p className="text-2xl sm:text-3xl font-bold text-white mt-2">{stat.value}</p>
-              <p className="text-gray-400 mt-1 text-sm sm:text-base">{stat.label}</p>
+        {/* ================= STATISTICS ================= */}
+        {stats.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 py-12 text-center">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon ? statIconMap[stat.icon] : null
+
+              return (
+                <div key={index} className="space-y-2">
+                  {Icon && <Icon className="w-8 h-8 mx-auto text-blue-500" />}
+                  <p className="text-xl font-bold text-white">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm text-gray-400">{stat.label}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="border-t border-white/10" />
+
+        {/* ================= MAIN FOOTER ================= */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 py-12">
+
+          {/* About */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Сумын тухай</h3>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="/taniltsuulga" className="hover:text-blue-400">Танилцуулга</Link></li>
+              <li><Link href="/zahirgaa" className="hover:text-blue-400">Засаг захиргаа</Link></li>
+              <li><Link href="/baiguullaga" className="hover:text-blue-400">Байгууллагууд</Link></li>
+              <li><Link href="/news" className="hover:text-blue-400">Мэдээ мэдээлэл</Link></li>
+            </ul>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Төрийн үйлчилгээ</h3>
+            <ul className="space-y-3 text-sm">
+              {[
+                ["https://e-mongolia.mn", "E-Mongolia"],
+                ["https://ebarimt.mn", "Ebarimt"],
+                ["https://itax.mta.mn", "iTax"],
+                ["https://1212.mn", "1212.mn"],
+              ].map(([url, label]) => (
+                <li key={label}>
+                  <a
+                    href={url}
+                    target="_blank"
+                    className="inline-flex items-center gap-1 hover:text-blue-400"
+                  >
+                    {label} <ExternalLink className="w-3 h-3" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact + Social */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Холбоо барих</h3>
+            <ul className="space-y-3 text-sm text-gray-300 mb-4">
+              <li>📍 {globals?.contact_address || "Сумын төв, Аймаг"}</li>
+              <li>☎️ {globals?.contact_phone || "7711-0000"}</li>
+              <li>✉️ {globals?.contact_email || "info@soum.gov.mn"}</li>
+              <li>🕘 Даваа – Баасан 09:00–18:00</li>
+            </ul>
+
+            {/* Social */}
+            <div className="flex gap-3 mt-2">
+              {socialLinks.map((link) => {
+                const Icon = socialIconMap[link.platform.toLowerCase()]
+                if (!Icon) return null
+
+                return (
+                  <Link
+                    key={link.platform}
+                    href={link.url}
+                    target="_blank"
+                    className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-blue-600"
+                  >
+                    <Icon size={18} />
+                  </Link>
+                )
+              })}
             </div>
-          ))}
-        </div>
-
-        {/* Divider after statistics */}
-        <div className="border-t border-gray-900 mb-12"></div>
-
-        {/* Top 3 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          
-          {/* Column 1 */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 tracking-wide">Company</h3>
-            <ul className="space-y-3">
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">About Us</a>
-              </li>
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Careers</a>
-              </li>
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Press</a>
-              </li>
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Blog</a>
-              </li>
-            </ul>
-          </div>
-          
-          {/* Column 2 */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 tracking-wide">Services</h3>
-            <ul className="space-y-3">
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Web Design</a>
-              </li>
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Development</a>
-              </li>
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Marketing</a>
-              </li>
-              <li>
-                <a className="hover:text-indigo-400 transition-colors duration-300" href="#">Consulting</a>
-              </li>
-            </ul>
-          </div>
-          
-          {/* Column 3 */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 tracking-wide">Contact</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li>123 Main Street</li>
-              <li>City, Country 12345</li>
-              <li>Email: info@example.com</li>
-              <li>Phone: +1 (234) 567-890</li>
-            </ul>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-900 mt-12"></div>
+        <div className="border-t border-white/10" />
 
-        {/* Bottom Section */}
-        <div className="mt-6 text-center text-gray-400 text-sm">
-          &copy; 2026 Your Company. All rights reserved.
+        {/* ================= BOTTOM ================= */}
+        <div className="py-6 text-center text-xs text-gray-400">
+          © 2026 {globals?.site_name || "Сумын Засаг Даргын Тамгын Газар"}.
+          Бүх эрх хуулиар хамгаалагдсан.
         </div>
       </div>
     </footer>
-  );
+  )
 }

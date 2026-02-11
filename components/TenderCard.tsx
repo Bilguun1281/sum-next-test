@@ -1,10 +1,12 @@
 import Link from "next/link"
 
+type TenderStatus = "active" | "closed"
+
 type TenderCardProps = {
   title: string
-  status: "active" | "closed"
-  deadline: string
-  budget: string
+  status: TenderStatus
+  deadline?: string | null
+  budget?: number | string | null
   slug: string
 }
 
@@ -16,12 +18,12 @@ export default function TenderCard({
   slug,
 }: TenderCardProps) {
   return (
-    <li className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full border-b border-gray-200 last:border-b-0 p-4 bg-white sm:bg-transparent sm:p-0">
+    <li className="group grid grid-cols-1 gap-3 border-b border-gray-200 py-4 sm:grid-cols-[180px_1fr_140px] sm:items-center">
       
-      {/* Left: Status + Deadline */}
-      <div className="flex items-center justify-between sm:flex-col sm:items-start sm:w-48 gap-1">
+      {/* LEFT — STATUS */}
+      <div className="flex items-center justify-between sm:flex-col sm:items-start sm:gap-2">
         <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
             status === "active"
               ? "bg-green-100 text-green-800"
               : "bg-gray-200 text-gray-600"
@@ -29,22 +31,37 @@ export default function TenderCard({
         >
           {status === "active" ? "НЭЭЛТТЭЙ" : "ХААГДСАН"}
         </span>
-        <span className="text-gray-500 text-sm">{deadline}</span>
+
+        {deadline && (
+          <span className="text-sm text-gray-500">
+            📅 {new Date(deadline).toLocaleDateString("mn-MN")}
+          </span>
+        )}
       </div>
 
-      {/* Middle: Title + Budget */}
-      <div className="flex-1 sm:px-4 mt-2 sm:mt-0">
-        <h3 className="text-gray-800 font-medium leading-snug line-clamp-2">
+      {/* MIDDLE — CONTENT */}
+      <div>
+        <h3 className="text-base font-medium text-gray-900 leading-snug group-hover:underline">
           {title}
         </h3>
-        <p className="text-gray-500 text-sm mt-1">Төсөв: {budget}</p>
+
+        {budget && (
+          <p className="mt-1 text-sm text-gray-500">
+            Төсөв:{" "}
+            <span className="font-medium text-gray-700">
+              {typeof budget === "number"
+                ? budget.toLocaleString("mn-MN")
+                : budget}
+            </span>
+          </p>
+        )}
       </div>
 
-      {/* Right: Action */}
-      <div className="mt-2 sm:mt-0 sm:text-right">
+      {/* RIGHT — ACTION */}
+      <div className="text-left sm:text-right">
         <Link
           href={`/tender/${slug}`}
-          className="inline-block w-full sm:w-auto rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium hover:bg-gray-100 transition"
+          className="inline-flex items-center justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:border-gray-400"
         >
           Дэлгэрэнгүй
         </Link>

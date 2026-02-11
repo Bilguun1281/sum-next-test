@@ -3,15 +3,6 @@ import OrganizationCard from "@/features/baiguullaga/components/OrganizationCard
 import { OrgCategory } from "@/features/baiguullaga/types";
 import Link from "next/link"
 
-// Mapping from OrgCategory to human-readable categoryName
-const categoryMap: Record<OrgCategory, string> = {
-  school: "Ерөнхий боловсролын сургууль",
-  kindergarten: "Цэцэрлэг",
-  health: "Эрүүл мэндийн төв",
-  culture: "Соёлын төв",
-  government: "Засгийн газар",
-  other: "Бусад",
-};
 
 const categories: { label: string; value: OrgCategory | "all" }[] = [
   { label: "Бүгд", value: "all" },
@@ -22,25 +13,26 @@ const categories: { label: string; value: OrgCategory | "all" }[] = [
 ];
 
 type Props = {
-  searchParams?: {
+  searchParams?: Promise<{
     category?: OrgCategory | "all"
-  }
+  }>
 }
 
-export default function OrganizationPage({ searchParams }: Props) {
-  const selectedCategory = searchParams?.category ?? "all";
+export default async function OrganizationPage({ searchParams }: Props) {
+ 
+  const selectedCategory = (await searchParams)?.category ?? "all";
 
   const filteredOrgs =
     selectedCategory === "all"
       ? organizationsData
       : organizationsData.filter(
-          (o) => o.categoryName === categoryMap[selectedCategory as OrgCategory]
+          (o) => o.category === selectedCategory
         );
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500">
+      <nav className="flex items-center gap-2 text-sm text-gray-500 mt-8">
         <Link href="/" className="hover:underline">Нүүр</Link>
         <span>/</span>
         <span className="text-gray-900 font-medium">Байгууллагууд</span>
